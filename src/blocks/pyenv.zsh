@@ -2,6 +2,7 @@
 # Pyenv block configurations
 
 BLOX_BLOCK__PYENV_COLOR="${BLOX_BLOCK__PYENV_COLOR:-green}"
+BLOX_BLOCK__PYENV_SYMBOL="${BLOX_BLOCK__PYENV_SYMBOL:-}"
 
 # ---------------------------------------------
 # Helper functions
@@ -24,6 +25,6 @@ function blox_block__pyenv() {
   if [[ ! -z "${python_version}" ]]; then
     blox_helper__build_block \
       "${BLOX_BLOCK__PYENV_COLOR}" \
-      "py:${python_version}"
+      "${BLOX_BLOCK__PYENV_SYMBOL} ${python_version}"
   fi
 }

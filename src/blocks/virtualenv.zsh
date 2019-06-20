@@ -2,6 +2,7 @@
 # Virtualenv block configurations
 
 BLOX_BLOCK__VIRTUALENV_COLOR="${BLOX_BLOCK__VIRTUALENV_COLOR:-green}"
+BLOX_BLOCK__VIRTUALENV_SYMBOL="${BLOX_BLOCK__VIRTUALENV_SYMBOL:-}"
 
 # ---------------------------------------------
 
@@ -11,5 +12,5 @@ function blox_block__virtualenv() {
 
   blox_helper__build_block \
     "${BLOX_BLOCK__VIRTUALENV_COLOR}" \
-    "ve:${VIRTUAL_ENV:t}"
+    "${BLOX_BLOCK__VIRTUALENV_SYMBOL} ${VIRTUAL_ENV:t}"
 }

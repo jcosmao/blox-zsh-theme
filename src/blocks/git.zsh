@@ -28,6 +28,10 @@ BLOX_BLOCK__GIT_UNPULLED_SYMBOL="${BLOX_BLOCK__GIT_UNPULLED_SYMBOL:-⇣}"
 BLOX_BLOCK__GIT_UNPUSHED_COLOR="${BLOX_BLOCK__GIT_UNPUSHED_COLOR:-blue}"
 BLOX_BLOCK__GIT_UNPUSHED_SYMBOL="${BLOX_BLOCK__GIT_UNPUSHED_SYMBOL:-⇡}"
 
+# Git repository block
+BLOX_BLOCK__GIT_REPO_COLOR="${BLOX_BLOCK__GIT_REPO_COLOR:-208}"
+BLOX_BLOCK__GIT_REPO_SYMBOL="${BLOX_BLOCK__GIT_REPO_SYMBOL:-}"
+
 # ---------------------------------------------
 # Themes
 
@@ -56,7 +60,7 @@ function blox_block__git_helper__branch() {
 
 # Echo the appropriate symbol for branch's status
 function blox_block__git_helper__status() {
-  if [[ -z "$(git status --porcelain --ignore-submodules)" ]]; then
+  if [[ -z "$(git status --porcelain --ignore-submodules 2> /dev/null)" ]]; then
     echo " $BLOX_BLOCK__GIT_THEME_CLEAN"
   else
     echo " $BLOX_BLOCK__GIT_THEME_DIRTY"
@@ -97,6 +101,24 @@ function blox_block__git_helper__is_git_repo() {
   return $(git rev-parse --git-dir > /dev/null 2>&1)
 }
 
+function blox_block__git_helper__short_status() {
+    local git_status=$(git diff --shortstat 2> /dev/null)
+    if [[ -n $git_status ]]; then
+        git_file_changed=$(echo $git_status | grep -Po '\d+(?= files* changed)')
+        git_line_added=$(echo $git_status | grep -Po '\d+(?= insertion)')
+        git_line_deleted=$(echo $git_status | grep -Po '\d+(?= deletion)')
+
+        local result=" "
+        result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}[%f"
+        result+="%F{blue}${git_file_changed}c%f"
+        [[ -n $git_line_added ]] && result+=" %F{green}${git_line_added}+%f"
+        [[ -n $git_line_deleted ]] && result+=" %F{red}${git_line_deleted}-%f"
+        result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}]%f"
+
+        echo ${result}
+    fi
+}
+
 # ---------------------------------------------
 # The block itself
 
@@ -110,6 +132,7 @@ function blox_block__git() {
     local branch_status="$(blox_block__git_helper__status)"
     local stashed_status="$(blox_block__git_helper__stashed_status)"
     local remote_status="$(blox_block__git_helper__remote_status)"
+    local short_status="$(blox_block__git_helper__short_status)"
 
     local result=""
 
@@ -122,7 +145,17 @@ function blox_block__git() {
     result+="${branch_status}"
     result+="${stashed_status}"
     result+="${remote_status}"
+    result+="${short_status}"
 
     echo $result
   fi
+}
+
+function blox_block__git_repo_name() {
+    blox_block__git_helper__is_git_repo || return 0
+    local repo=$( basename $(git config --get remote.origin.url) | sed -e 's/\.git$//' 2> /dev/null )
+
+    blox_helper__build_block \
+        "${BLOX_BLOCK__GIT_REPO_COLOR}" \
+        "${BLOX_BLOCK__GIT_REPO_SYMBOL} ${repo}"
 }
