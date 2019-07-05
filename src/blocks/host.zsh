@@ -3,6 +3,7 @@
 
 # User
 BLOX_BLOCK__HOST_USER_SHOW_ALWAYS="${BLOX_BLOCK__HOST_USER_SHOW_ALWAYS:-false}"
+BLOX_BLOCK__HOST_USER_SHOW_FQDN="${BLOX_BLOCK__HOST_USER_SHOW_FQDN:-false}"
 BLOX_BLOCK__HOST_USER_COLOR="${BLOX_BLOCK__HOST_USER_COLOR:-yellow}"
 BLOX_BLOCK__HOST_USER_ROOT_COLOR="${BLOX_BLOCK__HOST_USER_ROOT_COLOR:-red}"
 
@@ -30,7 +31,11 @@ function blox_block__host() {
     [[ $result != "" ]] \
       && result+="%F{242}@%f"
 
-    result+="%F{${BLOX_BLOCK__HOST_MACHINE_COLOR}]%}%m%f"
+    if [[ $BLOX_BLOCK__HOST_MACHINE_SHOW_FQDN != false ]]; then
+       result+="%F{${BLOX_BLOCK__HOST_MACHINE_COLOR}]%}%M%f"
+    else
+       result+="%F{${BLOX_BLOCK__HOST_MACHINE_COLOR}]%}%m%f"
+    fi
   fi
 
   if [[ $result != "" ]]; then

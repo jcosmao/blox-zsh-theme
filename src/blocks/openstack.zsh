@@ -1,7 +1,7 @@
 # --------------------------------------------- #
 # | Openstack block options
 # --------------------------------------------- #
-BLOX_BLOCK__OPENSTACK_SYMBOL="${BLOX_BLOCK__OPENSTACK_SYMBOL:- }"
+BLOX_BLOCK__OPENSTACK_SYMBOL="${BLOX_BLOCK__OPENSTACK_SYMBOL:- }"
 BLOX_BLOCK__OPENSTACK_COLOR="${BLOX_BLOCK__OPENSTACK_COLOR:-9}"
 
 # --------------------------------------------- #
@@ -15,5 +15,15 @@ function blox_block__openstack() {
         "${BLOX_BLOCK__OPENSTACK_COLOR}" \
         "${BLOX_BLOCK__OPENSTACK_SYMBOL} ${region_name}"
 
-    echo " %F{244}[${OS_PROJECT_NAME:-$OS_TENANT_NAME}:${OS_USERNAME}]%f"
+    local display_name=''
+    local project_name=${OS_PROJECT_NAME:-$OS_TENANT_NAME}
+    local project_id=${OS_PROJECT_ID:-$OS_TENANT_ID}
+
+    if [[ $project_name =~ '[0-9]+' && -n $project_id ]]; then
+        display_name="id: ${project_id}"
+    else
+        display_name=$project_name
+    fi
+
+    echo " %F{244}[${display_name}]%f"
 }
