@@ -3,6 +3,7 @@
 
 # Colors
 BLOX_BLOCK__GIT_BRANCH_COLOR="${BLOX_BLOCK__GIT_BRANCH_COLOR:-242}"
+BLOX_BLOCK__GIT_TAG_COLOR="${BLOX_BLOCK__GIT_TAG_COLOR:-34}"
 
 # Commit hash
 BLOX_BLOCK__GIT_COMMIT_SHOW="${BLOX_BLOCK__GIT_COMMIT_SHOW:-true}"
@@ -13,7 +14,7 @@ BLOX_BLOCK__GIT_CLEAN_COLOR="${BLOX_BLOCK__GIT_CLEAN_COLOR:-green}"
 BLOX_BLOCK__GIT_CLEAN_SYMBOL="${BLOX_BLOCK__GIT_CLEAN_SYMBOL:-✔}"
 
 # Dirty
-BLOX_BLOCK__GIT_DIRTY_COLOR="${BLOX_BLOCK__GIT_DIRTY_COLOR:-red}"
+BLOX_BLOCK__GIT_DIRTY_COLOR="${BLOX_BLOCK__GIT_DIRTY_COLOR:-yellow}"
 BLOX_BLOCK__GIT_DIRTY_SYMBOL="${BLOX_BLOCK__GIT_DIRTY_SYMBOL:-✘}"
 
 # Stashed files
@@ -47,6 +48,10 @@ BLOX_BLOCK__GIT_THEME_UNPUSHED="%F{${BLOX_BLOCK__GIT_UNPUSHED_COLOR}]%}$BLOX_BLO
 # Get commit hash (short)
 function blox_block__git_helper__commit() {
   echo $(command git rev-parse --short HEAD  2> /dev/null)
+}
+
+function blox_block__git_helper__tag() {
+  echo $(command git describe --tags 2> /dev/null)
 }
 
 # Get the current branch name
@@ -103,16 +108,19 @@ function blox_block__git_helper__is_git_repo() {
 
 function blox_block__git_helper__short_status() {
     local git_status=$(git diff --shortstat 2> /dev/null)
-    if [[ -n $git_status ]]; then
+    local git_untrack=$(git status --short | grep '^??' | wc -l 2> /dev/null)
+    if [[ -n $git_status || $git_untrack != 0 ]]; then
+        git_file_untracked=$git_untrack
         git_file_changed=$(echo $git_status | grep -Po '\d+(?= files* changed)')
         git_line_added=$(echo $git_status | grep -Po '\d+(?= insertion)')
         git_line_deleted=$(echo $git_status | grep -Po '\d+(?= deletion)')
 
         local result=" "
         result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}[%f"
-        result+="%F{blue}${git_file_changed}c%f"
-        [[ -n $git_line_added ]] && result+=" %F{green}${git_line_added}+%f"
-        [[ -n $git_line_deleted ]] && result+=" %F{red}${git_line_deleted}-%f"
+        [[ -n $git_file_changed ]] && result+="%F{blue}${git_file_changed}c%f "
+        [[ $git_file_untracked > 0 ]] && result+="%F{blue}${git_file_untracked}?%f "
+        [[ -n $git_line_added ]] && result+="%F{green}${git_line_added}+%f "
+        [[ -n $git_line_deleted ]] && result+="%F{red}${git_line_deleted}-%f"
         result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}]%f"
 
         echo ${result}
@@ -129,6 +137,7 @@ function blox_block__git() {
     local commit_hash
 
     local branch_name="$(blox_block__git_helper__branch)"
+    local tag_name="$(blox_block__git_helper__tag)"
     local branch_status="$(blox_block__git_helper__status)"
     local stashed_status="$(blox_block__git_helper__stashed_status)"
     local remote_status="$(blox_block__git_helper__remote_status)"
@@ -137,6 +146,7 @@ function blox_block__git() {
     local result=""
 
     result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}${branch_name}%f"
+    [[ -n $tag_name ]] && result+="%F{${BLOX_BLOCK__GIT_TAG_COLOR}}${BLOX_CONF__BLOCK_PREFIX}${tag_name}${BLOX_CONF__BLOCK_SUFFIX}%f"
 
     [[ $BLOX_BLOCK__GIT_COMMIT_SHOW != false ]] \
       && commit_hash="$(blox_block__git_helper__commit)" \
