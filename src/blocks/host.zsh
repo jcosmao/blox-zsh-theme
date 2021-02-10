@@ -14,12 +14,12 @@ BLOX_BLOCK__HOST_MACHINE_COLOR="${BLOX_BLOCK__HOST_MACHINE_COLOR:-cyan}"
 # ---------------------------------------------
 
 function blox_block__host() {
-  local user_color=$BLOX_BLOCK__HOST_USER_COLOR
+  user_color=$BLOX_BLOCK__HOST_USER_COLOR
 
   [[ $USER == "root" ]] \
     && user_color=$BLOX_BLOCK__HOST_USER_ROOT_COLOR
 
-  local result=""
+  result=""
 
   # Check if the user info is needed
   if [[ $BLOX_BLOCK__HOST_USER_SHOW_ALWAYS != false ]] || [[ $(whoami | awk '{print $1}') != $USER ]]; then

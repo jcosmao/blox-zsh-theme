@@ -9,15 +9,15 @@ BLOX_BLOCK__OPENSTACK_COLOR="${BLOX_BLOCK__OPENSTACK_COLOR:-9}"
 # --------------------------------------------- #
 function blox_block__openstack() {
     [[ -z $OS_PROJECT_NAME && -z $OS_TENANT_NAME ]] && return
-    local region_name=${OS_REGION_NAME:-..}
+    region_name=${OS_REGION_NAME:-..}
 
     blox_helper__build_block \
         "${BLOX_BLOCK__OPENSTACK_COLOR}" \
         "${BLOX_BLOCK__OPENSTACK_SYMBOL} ${region_name}"
 
-    local display_name=''
-    local project_name=${OS_PROJECT_NAME:-$OS_TENANT_NAME}
-    local project_id=${OS_PROJECT_ID:-$OS_TENANT_ID}
+    display_name=''
+    project_name=${OS_PROJECT_NAME:-$OS_TENANT_NAME}
+    project_id=${OS_PROJECT_ID:-$OS_TENANT_ID}
 
     if [[ $project_name =~ '[0-9]+' && -n $project_id ]]; then
         display_name="id: ${project_id}"

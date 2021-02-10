@@ -20,7 +20,7 @@ function blox_block__pyenv() {
   blox_helper__exists "pyenv" \
     || return
 
-  local python_version=$(blox_block__pyenv_helper__get_version)
+  python_version=$(blox_block__pyenv_helper__get_version)
 
   if [[ ! -z "${python_version}" ]]; then
     blox_helper__build_block \

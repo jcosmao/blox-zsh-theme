@@ -83,9 +83,9 @@ function blox_block__git_helper__stashed_status() {
 # Need to do 'git fetch' before
 function blox_block__git_helper__remote_status() {
 
-  local git_local=$(command git rev-parse @ 2> /dev/null)
-  local git_remote=$(command git rev-parse @{u} 2> /dev/null)
-  local git_base=$(command git merge-base @ @{u} 2> /dev/null)
+  git_local=$(command git rev-parse @ 2> /dev/null)
+  git_remote=$(command git rev-parse @{u} 2> /dev/null)
+  git_base=$(command git merge-base @ @{u} 2> /dev/null)
 
   # First check that we have a remote
   if ! [[ ${git_remote} = "" ]]; then
@@ -107,8 +107,8 @@ function blox_block__git_helper__is_git_repo() {
 }
 
 function blox_block__git_helper__short_status() {
-    local git_status=$(git diff --shortstat 2> /dev/null)
-    local git_untrack=$(git status --short | grep '^??' | wc -l 2> /dev/null)
+    git_status=$(git diff --shortstat 2> /dev/null)
+    git_untrack=$(git status --short | grep '^??' | wc -l 2> /dev/null)
     if [[ -n $git_status || $git_untrack != 0 ]]; then
         git_file_untracked=$git_untrack
         git_file_changed=$(echo $git_status | grep -Po '\d+(?= files* changed)')
@@ -134,16 +134,14 @@ function blox_block__git() {
 
   if blox_block__git_helper__is_git_repo; then
 
-    local commit_hash
+    branch_name="$(blox_block__git_helper__branch)"
+    tag_name="$(blox_block__git_helper__tag)"
+    branch_status="$(blox_block__git_helper__status)"
+    stashed_status="$(blox_block__git_helper__stashed_status)"
+    remote_status="$(blox_block__git_helper__remote_status)"
+    short_status="$(blox_block__git_helper__short_status)"
 
-    local branch_name="$(blox_block__git_helper__branch)"
-    local tag_name="$(blox_block__git_helper__tag)"
-    local branch_status="$(blox_block__git_helper__status)"
-    local stashed_status="$(blox_block__git_helper__stashed_status)"
-    local remote_status="$(blox_block__git_helper__remote_status)"
-    local short_status="$(blox_block__git_helper__short_status)"
-
-    local result=""
+    result=""
 
     result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}${branch_name}%f"
     [[ -n $tag_name ]] && result+="%F{${BLOX_BLOCK__GIT_TAG_COLOR}}${BLOX_CONF__BLOCK_PREFIX}${tag_name}${BLOX_CONF__BLOCK_SUFFIX}%f"
@@ -163,7 +161,7 @@ function blox_block__git() {
 
 function blox_block__git_repo_name() {
     blox_block__git_helper__is_git_repo || return 0
-    local repo=$( basename $(git config --get remote.origin.url) | sed -e 's/\.git$//' 2> /dev/null )
+    repo=$( basename $(git config --get remote.origin.url) | sed -e 's/\.git$//' 2> /dev/null )
 
     blox_helper__build_block \
         "${BLOX_BLOCK__GIT_REPO_COLOR}" \

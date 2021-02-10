@@ -13,7 +13,7 @@ BLOX_BLOCK__SYMBOL_ALTERNATE="${BLOX_BLOCK__SYMBOL_ALTERNATE:-◇}"
 # ---------------------------------------------
 
 function blox_block__symbol() {
-  local result=""
+  result=""
 
   result="%F{${BLOX_BLOCK__SYMBOL_COLOR}}"
   result+="%(?.$BLOX_BLOCK__SYMBOL_SYMBOL.%F{$BLOX_BLOCK__SYMBOL_EXIT_COLOR}$BLOX_BLOCK__SYMBOL_EXIT_SYMBOL)";

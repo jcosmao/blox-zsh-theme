@@ -7,7 +7,7 @@ BLOX_BLOCK__BGJOBS_COLOR="${BLOX_BLOCK__BGJOBS_COLOR:-magenta}"
 # ---------------------------------------------
 
 function blox_block__bgjobs() {
-  local bgjobs=$(jobs | wc -l | awk '{print $1}' 2> /dev/null)
+  bgjobs=$(jobs | wc -l | awk '{print $1}' 2> /dev/null)
 
   if [[ ! $bgjobs == "0" ]]; then
     #blox_helper__build_block \
