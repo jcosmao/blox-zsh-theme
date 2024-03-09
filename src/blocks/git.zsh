@@ -33,8 +33,6 @@ BLOX_BLOCK__GIT_REPO_SYMBOL="${BLOX_BLOCK__GIT_REPO_SYMBOL:-󰊢}"
 # ---------------------------------------------
 # Themes
 
-BLOX_BLOCK__GIT_THEME_CLEAN="%F{${BLOX_BLOCK__GIT_CLEAN_COLOR}]%}$BLOX_BLOCK__GIT_CLEAN_SYMBOL%f"
-BLOX_BLOCK__GIT_THEME_STASHED="%F{${BLOX_BLOCK__GIT_STASHED_COLOR}]%}$BLOX_BLOCK__GIT_STASHED_SYMBOL%f"
 BLOX_BLOCK__GIT_THEME_UNPULLED="%F{${BLOX_BLOCK__GIT_UNPULLED_COLOR}]%}$BLOX_BLOCK__GIT_UNPULLED_SYMBOL%f"
 BLOX_BLOCK__GIT_THEME_UNPUSHED="%F{${BLOX_BLOCK__GIT_UNPUSHED_COLOR}]%}$BLOX_BLOCK__GIT_UNPUSHED_SYMBOL%f"
 
@@ -75,17 +73,11 @@ function blox_block__git_helper__remote_branch() {
   fi
 }
 
-# Echo the appropriate symbol for branch's status
-function blox_block__git_helper__status() {
-  if [[ -z "$(git status --porcelain --ignore-submodules 2> /dev/null)" ]]; then
-    echo " $BLOX_BLOCK__GIT_THEME_CLEAN"
-  fi
-}
-
 # Echo the appropriate symbol if there are stashed files
 function blox_block__git_helper__stashed_status() {
-  if $(command git rev-parse --verify refs/stash &> /dev/null); then
-    echo " $BLOX_BLOCK__GIT_THEME_STASHED"
+  stash=$(git stash list 2> /dev/null | wc -l)
+  if [[ $stash > 0 ]]; then
+    echo " %F{${BLOX_BLOCK__GIT_STASHED_COLOR}]%}${BLOX_BLOCK__GIT_STASHED_SYMBOL} ${stash}%f"
   fi
 }
 
@@ -124,7 +116,7 @@ function blox_block__git_helper__short_status() {
         git_stat=$(git diff --shortstat 2> /dev/null)
 
         git_file_untracked=$(echo $git_status | grep '^??' | wc -l)
-        git_file_staged=$(echo $git_status | grep '^A' | wc -l)
+        git_file_staged=$(echo $git_status | grep -P '^(A|R|M|D)' | wc -l)
         git_file_changed=$(echo $git_stat | grep -Po '\d+(?= files* changed)')
         git_line_added=$(echo $git_stat | grep -Po '\d+(?= insertion)')
         git_line_deleted=$(echo $git_stat | grep -Po '\d+(?= deletion)')
@@ -152,7 +144,6 @@ function blox_block__git() {
   branch_name="$(blox_block__git_helper__branch)"
   branch_remote="$(blox_block__git_helper__remote_branch $branch_name)"
   tag_name="$(blox_block__git_helper__tag)"
-  branch_status="$(blox_block__git_helper__status)"
   stashed_status="$(blox_block__git_helper__stashed_status)"
   remote_status="$(blox_block__git_helper__remote_status)"
   short_status="$(blox_block__git_helper__short_status)"
@@ -167,7 +158,6 @@ function blox_block__git() {
     && commit_hash="$(blox_block__git_helper__commit)" \
     && result+="%F{${BLOX_BLOCK__GIT_COMMIT_COLOR}}${BLOX_CONF__BLOCK_PREFIX}${commit_hash}${BLOX_CONF__BLOCK_SUFFIX}%f"
 
-  result+="${branch_status}"
   result+="${stashed_status}"
   result+="${remote_status}"
   result+="${short_status}"

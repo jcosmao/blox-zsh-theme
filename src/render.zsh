@@ -4,6 +4,8 @@
 # Calculate how many spaces we need to put between two segments
 function blox_helper__calculate_spaces() {
 
+  [[ $BLOX_DEBUG -ne 1 ]] && set +x
+
   # The segments
   local left=$1
   local right=$2
@@ -36,6 +38,9 @@ function blox_helper__calculate_spaces() {
 
 # Render the prompt
 function blox_hook__render() {
+
+  [[ $BLOX_DEBUG -ne 1 ]] && set +x
+
   # `EXTENDED_GLOB` may be required by some blocks. `LOCAL_OPTIONS` will enable
   # the option locally, meaning it'll restore to its previous state after the
   # function exits.
@@ -51,15 +56,38 @@ function blox_hook__render() {
   [[ -n "$BLOX_CONF__PROMPT_PREFIX" ]] \
     && echo -ne "$BLOX_CONF__PROMPT_PREFIX"
 
-  # Segments
-  upper_left="$(blox_helper__render_segment $BLOX_SEG__UPPER_LEFT)"
-  upper_right="$(blox_helper__render_segment $BLOX_SEG__UPPER_RIGHT)"
+  [[ $BLOX_DEBUG = 1 ]] && start=$(($(date +%s%N)/1000000))
+
+  # build block in // using zargs
+  # https://stackoverflow.com/a/51549244
+  autoload -Uz zargs
+  array=()
+  all_args=(
+    upper_left "$BLOX_SEG__UPPER_LEFT"
+    upper_right "$BLOX_SEG__UPPER_RIGHT"
+    lower_left "$BLOX_SEG__LOWER_LEFT"
+    lower_right "$BLOX_SEG__LOWER_RIGHT"
+  )
+  results=("${(@f)"$(zargs -P4 -n2 -- ${all_args[@]} -- blox_helper__render_segment)"}")
+
+  for r in ${results[@]}; do
+    name=$(echo $r | cut -d: -f1)
+    segment=$(echo $r | cut -d: -f2-)
+    [[ $name = upper_left ]] && upper_left="$segment"
+    [[ $name = upper_right ]] && upper_right="$segment"
+    if [[ $BLOX_CONF__ONELINE == false ]]; then
+      [[ $name = lower_left ]] && lower_left="$segment"
+      [[ $name = lower_right ]] && lower_right="$segment"
+    fi
+  done
 
   if [[ $BLOX_CONF__ONELINE == false ]]; then
-    lower_left="$(blox_helper__render_segment $BLOX_SEG__LOWER_LEFT)"
-    lower_right="$(blox_helper__render_segment $BLOX_SEG__LOWER_RIGHT)"
-
     spacing="$(blox_helper__calculate_spaces ${upper_left} ${upper_right})"
+  fi
+
+  if [[ $BLOX_DEBUG = 1 ]]; then
+    finish=$(($(date +%s%N)/1000000))
+    BLOX_BUILD_TIME=" (DEBUG prompt build time: $(( finish - start )) ms)"
   fi
 
   # In oneline mode, we set $PROMPT to the
@@ -86,7 +114,7 @@ function blox_hook__render() {
       # Otherwise, we'll first render the upper segments separately, then the lower segments. Doing
       # this may solve some resizing issue (#2).
       print -rP " %{${upper_left}%}${spacing}%{${upper_right}%} "
-      PROMPT=" ${lower_left} "
+      PROMPT="${BLOX_BUILD_TIME}${lower_left} "
     fi
 
     # Lower right prompt

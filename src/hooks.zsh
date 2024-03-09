@@ -9,6 +9,9 @@ __BLOX_HOOKS_TO_SETUP=( preexec precmd )
 
 # Setup hooks for each block
 function blox_helper__setup_hooks() {
+
+  [[ $BLOX_DEBUG -ne 1 ]] && set +x
+
   local used_blocks=(
     "${BLOX_SEG__UPPER_LEFT[@]}"
     "${BLOX_SEG__UPPER_RIGHT[@]}"

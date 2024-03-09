@@ -21,7 +21,7 @@ function blox_block__nodejs() {
     return
   fi
 
-  [[ -f "$(pwd)/package.json" || -d "$(pwd)/node_modules" || -n *.(js|jsx|ts|tsx)(#qN^/) ]] \
+  [[ -f "$(pwd)/package.json" || -d "$(pwd)/node_modules" || $(ls | grep -Pc '.*\.(js|jsx|ts|tsx)$') > 0 ]] \
     || return
 
   blox_helper__exists "node" \

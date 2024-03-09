@@ -2,7 +2,7 @@
 # Virtualenv block configurations
 
 BLOX_BLOCK__VIRTUALENV_COLOR="${BLOX_BLOCK__VIRTUALENV_COLOR:-green}"
-BLOX_BLOCK__VIRTUALENV_SYMBOL="${BLOX_BLOCK__VIRTUALENV_SYMBOL:-}"
+BLOX_BLOCK__VIRTUALENV_SYMBOL="${BLOX_BLOCK__VIRTUALENV_SYMBOL:-󰌠}"
 
 # ---------------------------------------------
 

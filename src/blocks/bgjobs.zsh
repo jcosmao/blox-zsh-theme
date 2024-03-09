@@ -1,7 +1,7 @@
 # ---------------------------------------------
 # Background jobs block configurations
 
-BLOX_BLOCK__BGJOBS_SYMBOL="${BLOX_BLOCK__BGJOBS_SYMBOL:- }"
+BLOX_BLOCK__BGJOBS_SYMBOL="${BLOX_BLOCK__BGJOBS_SYMBOL:-  }"
 BLOX_BLOCK__BGJOBS_COLOR="${BLOX_BLOCK__BGJOBS_COLOR:-magenta}"
 
 # ---------------------------------------------
