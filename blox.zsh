@@ -33,6 +33,7 @@ source "$__BLOX_ROOT/src/blocks/docker.zsh"
 source "$__BLOX_ROOT/src/blocks/kube.zsh"
 source "$__BLOX_ROOT/src/blocks/netns.zsh"
 source "$__BLOX_ROOT/src/blocks/terraform.zsh"
+source "$__BLOX_ROOT/src/blocks/gitsecret.zsh"
 
 source "$__BLOX_ROOT/src/title.zsh"
 source "$__BLOX_ROOT/src/segments.zsh"
