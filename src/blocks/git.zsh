@@ -46,12 +46,13 @@ function blox_block__git_helper__commit() {
 
 function blox_block__git_helper__tag() {
   [[ $BLOX_BLOCK__GIT_TAG_DISABLED == 1 ]] && return
-  echo $(command git describe --tags 2> /dev/null)
+  echo $(command git describe --exact-match --tags 2> /dev/null)
 }
 
 # Get the current branch name
 function blox_block__git_helper__branch() {
   ref=$(command git symbolic-ref HEAD 2> /dev/null) \
+    || ref=$(command git rev-parse --symbolic-full-name HEAD 2> /dev/null) \
     || ref=$(command git rev-parse --short HEAD 2> /dev/null) \
     || return 0
 
