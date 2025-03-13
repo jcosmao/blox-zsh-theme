@@ -139,7 +139,7 @@ function blox_block__git_helper__short_status() {
 # ---------------------------------------------
 # The block itself
 
-function blox_block__git() {
+function _build_block_git {
   blox_block__git_helper__is_git_repo || return 0
 
   branch_name="$(blox_block__git_helper__branch)"
@@ -164,6 +164,25 @@ function blox_block__git() {
   result+="${short_status}"
 
   echo $result
+}
+
+function _export_block_git {
+  cmd=$history[$[ HISTCMD -1 ]]
+
+  [[ $[ HISTCMD -1 ] == $BLOX_GIT_LAST_CMD_INDEX ]] && return
+
+  # Rebuild git block if a command has been added to history AND is one of those command
+  if [[ $cmd =~ ^(cd|git|rm|mv|cp|vi|nvim) || -z $BLOX_BLOCK_GIT ]]; then
+    export BLOX_BLOCK_GIT=$(_build_block_git)
+  fi
+
+  export BLOX_GIT_LAST_CMD_INDEX=$[ HISTCMD -1 ]
+}
+
+add-zsh-hook precmd _export_block_git
+
+function blox_block__git() {
+  [[ -n $BLOX_BLOCK_GIT ]] && echo -n $BLOX_BLOCK_GIT
 }
 
 function blox_block__git_repo_name() {
