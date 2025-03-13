@@ -6,12 +6,20 @@ function blox_helper__render_block() {
   local block=$1
   local block_func="blox_block__${block}"
 
+  [[ $BLOX_DEBUG = 1 ]] && start=$(($(date +%s%N)/1000000))
+
   if command -v "$block_func" &> /dev/null; then
     echo "${block}:$(${block_func})"
   else
     # Support for older versions of blox, where the block render function name
     # would be the same as the block name itself.
     echo "${block}:$(${block})"
+  fi
+
+  if [[ $BLOX_DEBUG = 1 ]]; then
+    finish=$(($(date +%s%N)/1000000))
+    BLOX_BUILD_TIME=" (DEBUG $block build time: $(( finish - start )) ms)"
+    >&2 echo $BLOX_BUILD_TIME
   fi
 }
 
