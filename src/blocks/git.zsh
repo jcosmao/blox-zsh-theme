@@ -172,7 +172,7 @@ function _export_block_git {
   [[ $[ HISTCMD -1 ] == $BLOX_GIT_LAST_CMD_INDEX ]] && return
 
   # Rebuild git block if a command has been added to history AND is one of those command
-  if [[ $cmd =~ ^(cd|git|rm|mv|cp|vi|nvim) || -z $BLOX_BLOCK_GIT ]]; then
+  if [[ $cmd =~ ^(cd|wd|git|rm|mv|cp|vi|nvim) || -z $BLOX_BLOCK_GIT ]]; then
     export BLOX_BLOCK_GIT=$(_build_block_git)
   fi
 
