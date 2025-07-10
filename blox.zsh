@@ -23,7 +23,7 @@ source "$__BLOX_ROOT/src/blocks/exec_time.zsh"
 source "$__BLOX_ROOT/src/blocks/git.zsh"
 source "$__BLOX_ROOT/src/blocks/host.zsh"
 source "$__BLOX_ROOT/src/blocks/nodejs.zsh"
-source "$__BLOX_ROOT/src/blocks/pyenv.zsh"
+source "$__BLOX_ROOT/src/blocks/python.zsh"
 source "$__BLOX_ROOT/src/blocks/symbol.zsh"
 source "$__BLOX_ROOT/src/blocks/time.zsh"
 source "$__BLOX_ROOT/src/blocks/virtualenv.zsh"
@@ -60,7 +60,7 @@ BLOX_CONF__UNIFIED_PROMPT="${BLOX_CONF__UNIFIED_PROMPT:-false}"
 
 # Defualts
 __BLOX_SEG_DEFAULT__UPPER_LEFT=( host cwd git exec_time )
-__BLOX_SEG_DEFAULT__UPPER_RIGHT=( bgjobs nodejs pyenv virtualenv awsprofile time )
+__BLOX_SEG_DEFAULT__UPPER_RIGHT=( bgjobs nodejs virtualenv awsprofile time )
 __BLOX_SEG_DEFAULT__LOWER_LEFT=( symbol )
 __BLOX_SEG_DEFAULT__LOWER_RIGHT=( )
 

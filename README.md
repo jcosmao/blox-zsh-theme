@@ -161,14 +161,6 @@ Shows nodejs version if there is a `package.json` file in the working directory.
 | `BLOX_BLOCK__NODEJS_SYMBOL` | `'⬢'` | The indicator to show |
 | `BLOX_BLOCK__NODEJS_COLOR` | `'green'` | The block's color |
 
-#### `pyenv`
-
-Display the python version being used by pyenv.
-
-| Variable | Default | Meaning |
-| :------- | :------ | :------ |
-| `BLOX_BLOCK__PYENV_COLOR` | `'green'` | The block's color |
-
 #### `virtualenv`
 
 Display the name of the currently used virtualenv.
@@ -211,7 +203,7 @@ representing the block's name.
 | Variable | Default |
 | :------- | :------ |
 | `BLOX_SEG__UPPER_LEFT` | `( host cwd git exec_time )` |
-| `BLOX_SEG__UPPER_RIGHT` | `( bgjobs nodejs pyenv virtualenv time )` |
+| `BLOX_SEG__UPPER_RIGHT` | `( bgjobs nodejs virtualenv time )` |
 | `BLOX_SEG__LOWER_LEFT` | `( symbol )` |
 | `BLOX_SEG__LOWER_RIGHT` | `( )` |
 
@@ -243,7 +235,7 @@ more details).  If the error is consistent, you can adjust the spacing:
 
 | Variable | Default | Meaning |
 | :------- | :------ | :------ |
-| `BLOX_SEG__ADJUST_SPACING_WIDTH` | `0` | Will be subtracted from the calculated spacing length 
+| `BLOX_SEG__ADJUST_SPACING_WIDTH` | `0` | Will be subtracted from the calculated spacing length
 
 
 ---

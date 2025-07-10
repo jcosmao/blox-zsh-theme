@@ -20,7 +20,7 @@
   assert "$BLOX_CONF__PROMPT_PREFIX" matches '\\n'
 
   assert "$BLOX_SEG__UPPER_LEFT" same_as 'host cwd git exec_time'
-  assert "$BLOX_SEG__UPPER_RIGHT" same_as 'bgjobs nodejs pyenv virtualenv awsprofile time'
+  assert "$BLOX_SEG__UPPER_RIGHT" same_as 'bgjobs nodejs virtualenv awsprofile time'
   assert "$BLOX_SEG__LOWER_LEFT" same_as 'symbol'
   assert "$BLOX_SEG__LOWER_RIGHT" same_as ''
 }
