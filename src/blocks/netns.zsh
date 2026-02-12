@@ -2,7 +2,7 @@
 # | NETNS block options
 # --------------------------------------------- #
 BLOX_BLOCK__NETNS_SYMBOL="${BLOX_BLOCK__NETNS_SYMBOL:- }"
-BLOX_BLOCK__NETNS_COLOR="${BLOX_BLOCK__NETNS_COLOR:-198}"
+BLOX_BLOCK__NETNS_COLOR="${BLOX_BLOCK__NETNS_COLOR:-212}"
 # --------------------------------------------- #
 # | The block itself
 # --------------------------------------------- #
