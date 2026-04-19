@@ -17,13 +17,17 @@ function blox_python_version__has_python_known_files() {
 }
 
 function reset_python_version {
-  blox_python_version__has_python_known_files || {unset BLOX_PYTHON_VERSION_PYTHON_VERSION && return}
-  export BLOX_PYTHON_VERSION_PYTHON_VERSION=$( (python3 -V || python -V) 2> /dev/null | awk '{print $2}')
+  blox_python_version__has_python_known_files || {
+    unset BLOX_PYTHON_VERSION_PYTHON_VERSION
+    return
+  }
+  export BLOX_PYTHON_VERSION_PYTHON_VERSION=$({ python3 -V || python -V } 2> /dev/null | cut -d ' ' -f2)
 }
-add-zsh-hook chpwd reset_python_version
 
 # do it on start
 reset_python_version
+# exec function on each cd
+add-zsh-hook chpwd reset_python_version
 
 # ---------------------------------------------
 
@@ -35,6 +39,7 @@ function blox_block__python_version() {
   if [[ ! -z "${python_version}" ]]; then
     blox_helper__build_block \
       "${BLOX_BLOCK__PYTHON_VERSION_COLOR}" \
-      "${BLOX_BLOCK__PYTHON_VERSION_SYMBOL} ${python_version}"
+      "${BLOX_BLOCK__PYTHON_VERSION_SYMBOL} ${python_version}" \
+      null ' '
   fi
 }

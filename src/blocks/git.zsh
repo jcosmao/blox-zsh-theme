@@ -78,7 +78,7 @@ function blox_block__git_helper__remote_branch() {
 function blox_block__git_helper__stashed_status() {
   stash=$(git stash list 2> /dev/null | wc -l)
   if [[ $stash > 0 ]]; then
-    echo " %F{${BLOX_BLOCK__GIT_STASHED_COLOR}]%}${BLOX_BLOCK__GIT_STASHED_SYMBOL} ${stash}%f"
+    echo " %F{${BLOX_BLOCK__GIT_STASHED_COLOR}]%}${stash}${BLOX_BLOCK__GIT_STASHED_SYMBOL}%f "
   fi
 }
 
@@ -123,14 +123,15 @@ function blox_block__git_helper__short_status() {
         git_line_deleted=$(echo $git_stat | grep -Po '\d+(?= deletion)')
 
         local result=" "
-        result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}[%f"
+        # result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}[%f"
         [[ -n $git_file_changed ]] && result+="%F{blue}${git_file_changed}󱇧%f "
         [[ $git_file_untracked > 0 ]] && result+="%F{red}${git_file_untracked}󰡯%f "
         [[ $git_file_staged > 0 ]] && result+="%F{yellow}${git_file_staged}󰝒%f "
         [[ -n $git_line_added || -n $git_line_deleted ]] && result+=" "
         [[ -n $git_line_added ]] && result+="%F{green}${git_line_added}󰐒%f "
         [[ -n $git_line_deleted ]] && result+="%F{red}${git_line_deleted}󰐐%f "
-        result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}]%f"
+        result+=" "
+        # result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}]%f"
 
         echo ${result}
     fi
@@ -191,5 +192,5 @@ function blox_block__git_repo_name() {
 
     blox_helper__build_block \
         "${BLOX_BLOCK__GIT_REPO_COLOR}" \
-        "${BLOX_BLOCK__GIT_REPO_SYMBOL} ${repo:-LOCAL}"
+        "${BLOX_BLOCK__GIT_REPO_SYMBOL} ${repo:-LOCAL}" null null
 }

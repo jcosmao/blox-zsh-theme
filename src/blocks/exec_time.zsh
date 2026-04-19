@@ -3,7 +3,7 @@
 
 BLOX_BLOCK__EXEC_TIME_MIN_ELAPSED="${BLOX_BLOCK__EXEC_TIME_MIN_ELAPSED:-5}"
 BLOX_BLOCK__EXEC_TIME_PERSIST="${BLOX_BLOCK__EXEC_TIME_PERSIST:-false}"
-BLOX_BLOCK__EXEC_TIME_COLOR="${BLOX_BLOCK__EXEC_TIME_COLOR:-yellow}"
+BLOX_BLOCK__EXEC_TIME_COLOR="${BLOX_BLOCK__EXEC_TIME_COLOR:-60}"
 
 BLOX_BLOCK__EXEC_TIME_START=""
 BLOX_BLOCK__EXEC_TIME_STOP=""
@@ -49,11 +49,8 @@ function blox_block__exec_time() {
   [[ $elapsed -gt $BLOX_BLOCK__EXEC_TIME_MIN_ELAPSED ]] \
     || return
 
-  local result=""
-
-  result="%F{${BLOX_BLOCK__EXEC_TIME_COLOR}}"
-  result+="$(blox_block__exec_time_helper__humen_time $elapsed)";
-  result+="%f"
-
-  echo $result
+  blox_helper__build_block \
+      "${BLOX_BLOCK__EXEC_TIME_COLOR}" \
+      "$(blox_block__exec_time_helper__humen_time $elapsed)" \
+      " " null
 }

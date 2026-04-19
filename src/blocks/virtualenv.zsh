@@ -19,5 +19,5 @@ function blox_block__virtualenv() {
 
   blox_helper__build_block \
     "${BLOX_BLOCK__VIRTUALENV_COLOR}" \
-    "${BLOX_BLOCK__VIRTUALENV_SYMBOL} ${venv_name}"
+    "${BLOX_BLOCK__VIRTUALENV_SYMBOL} ${venv_name}" null ' '
 }
