@@ -4,6 +4,7 @@
 # Render a block
 function blox_helper__render_block() {
   local block=$1
+  [[ -z "$block" ]] && return
   local block_func="blox_block__${block}"
 
   [[ $BLOX_DEBUG = 1 ]] && start=$(($(date +%s%N)/1000000))

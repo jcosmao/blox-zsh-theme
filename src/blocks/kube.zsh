@@ -19,7 +19,10 @@ function blox_block__kube() {(
       namespace_color=244
     fi
 
+    [[ $kube_context = default ]] && kube_context=""
+
+
     blox_helper__build_block \
         "${BLOX_BLOCK__KUBE_COLOR}" \
-        "${BLOX_BLOCK__KUBE_SYMBOL} ${kube_context:-undef} %F{$namespace_color}${kubens:-default}%f"
+        "${BLOX_BLOCK__KUBE_SYMBOL} ${kube_context%%.*} %F{$namespace_color}${kubens:-default}%f"
 )}

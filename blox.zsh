@@ -56,6 +56,12 @@ BLOX_CONF__UNIFIED_PROMPT="${BLOX_CONF__UNIFIED_PROMPT:-false}"
   && BLOX_CONF__PROMPT_PREFIX="\n"
 
 # ---------------------------------------------
+# Responsive prompt: hide some upper blocks if prompt would overflow terminal width
+
+# Blocks to show in upper left when prompt is too wide (priority: user and path)
+BLOX_CONF__RESPONSIVE_UPPER_LEFT=(${BLOX_CONF__RESPONSIVE_UPPER_LEFT:-host cwd})
+
+# ---------------------------------------------
 # Segments configurations
 
 # Defualts

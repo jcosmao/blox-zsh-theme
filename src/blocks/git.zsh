@@ -3,7 +3,7 @@
 
 # Colors
 BLOX_BLOCK__GIT_BRANCH_COLOR="${BLOX_BLOCK__GIT_BRANCH_COLOR:-242}"
-BLOX_BLOCK__GIT_BRANCH_REMOTE_COLOR="${BLOX_BLOCK__GIT_BRANCH_REMOTE__COLOR:-241}"
+BLOX_BLOCK__GIT_BRANCH_REMOTE_COLOR="${BLOX_BLOCK__GIT_BRANCH_REMOTE_COLOR:-241}"
 BLOX_BLOCK__GIT_TAG_COLOR="${BLOX_BLOCK__GIT_TAG_COLOR:-34}"
 
 # Commit hash
@@ -30,6 +30,13 @@ BLOX_BLOCK__GIT_UNPUSHED_SYMBOL="${BLOX_BLOCK__GIT_UNPUSHED_SYMBOL:-⇡}"
 BLOX_BLOCK__GIT_REPO_COLOR="${BLOX_BLOCK__GIT_REPO_COLOR:-208}"
 BLOX_BLOCK__GIT_REPO_SYMBOL="${BLOX_BLOCK__GIT_REPO_SYMBOL:-󰊢}"
 
+# Feature toggles
+BLOX_BLOCK__GIT_SHOW_REMOTE="${BLOX_BLOCK__GIT_SHOW_REMOTE:-true}"
+BLOX_BLOCK__GIT_SHOW_TAGS="${BLOX_BLOCK__GIT_SHOW_TAGS:-true}"
+BLOX_BLOCK__GIT_SHOW_SHORT_STATUS="${BLOX_BLOCK__GIT_SHOW_SHORT_STATUS:-true}"
+BLOX_BLOCK__GIT_SHOW_STASHED="${BLOX_BLOCK__GIT_SHOW_STASHED:-true}"
+BLOX_BLOCK__GIT_SHOW_REMOTE_STATUS="${BLOX_BLOCK__GIT_SHOW_REMOTE_STATUS:-true}"
+
 # ---------------------------------------------
 # Themes
 
@@ -41,43 +48,50 @@ BLOX_BLOCK__GIT_THEME_UNPUSHED="%F{${BLOX_BLOCK__GIT_UNPUSHED_COLOR}]%}$BLOX_BLO
 
 # Get commit hash (short)
 function blox_block__git_helper__commit() {
-  echo $(command git rev-parse --short HEAD  2> /dev/null)
+  command git rev-parse --short HEAD 2> /dev/null
 }
 
 function blox_block__git_helper__tag() {
-  [[ $BLOX_BLOCK__GIT_TAG_DISABLED == 1 ]] && return
-  echo $(command git describe --exact-match --tags 2> /dev/null)
+  [[ "${BLOX_BLOCK__GIT_TAG_DISABLED}" == "1" ]] && return
+  command git describe --exact-match --tags 2> /dev/null
 }
 
 # Get the current branch name
 function blox_block__git_helper__branch() {
-  ref=$(command git symbolic-ref HEAD 2> /dev/null) \
-    || ref=$(command git rev-parse --symbolic-full-name HEAD 2> /dev/null) \
-    || ref=$(command git rev-parse --short HEAD 2> /dev/null) \
-    || return 0
+  local ref
+  ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
+  ref=$(command git rev-parse --symbolic-full-name HEAD 2> /dev/null) || \
+  ref=$(command git rev-parse --short HEAD 2> /dev/null)
 
-  echo "${ref#refs/heads/}";
+  if [[ -n "${ref}" ]]; then
+    echo "${ref#refs/heads/}"
+  else
+    echo "(detached)"
+  fi
 }
 
 function blox_block__git_helper__remote_branch() {
-  local_branch=$1
+  local local_branch=$1
+  local ref
   ref=$(command git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null)
 
-  if [[ -n $ref ]]; then
-    remote=$(echo $ref | cut -d'/' -f1)
-    branch=$(echo $ref | cut -d'/' -f2-)
-    if [[ $local_branch != $branch ]]; then
-      echo $ref
+  if [[ -n "${ref}" ]]; then
+    local remote branch
+    remote=$(echo "${ref}" | cut -d'/' -f1)
+    branch=$(echo "${ref}" | cut -d'/' -f2-)
+    if [[ "${local_branch}" != "${branch}" ]]; then
+      echo "${ref}"
     else
-      echo $remote
+      echo "${remote}"
     fi
   fi
 }
 
 # Echo the appropriate symbol if there are stashed files
 function blox_block__git_helper__stashed_status() {
-  stash=$(git stash list 2> /dev/null | wc -l)
-  if [[ $stash > 0 ]]; then
+  local stash
+  stash=$(command git stash list 2> /dev/null | wc -l)
+  if [[ "${stash}" -gt 0 ]]; then
     echo " %F{${BLOX_BLOCK__GIT_STASHED_COLOR}]%}${stash}${BLOX_BLOCK__GIT_STASHED_SYMBOL}%f "
   fi
 }
@@ -85,30 +99,32 @@ function blox_block__git_helper__stashed_status() {
 # Echo the appropriate symbol for branch's remote status (pull/push)
 # Need to do 'git fetch' before
 function blox_block__git_helper__remote_status() {
+  local git_remote git_local git_base
 
   git_remote=$(command git rev-parse @{u} 2> /dev/null)
 
   # First check that we have a remote
-  if ! [[ ${git_remote} = "" ]]; then
+  if [[ -z "${git_remote}" ]]; then
+    return
+  fi
 
-    git_local=$(command git rev-parse @ 2> /dev/null)
-    git_base=$(command git merge-base @ @{u} 2> /dev/null)
+  git_local=$(command git rev-parse @ 2> /dev/null)
+  git_base=$(command git merge-base @ @{u} 2> /dev/null)
 
-    if [[ ${git_local} = ${git_remote} ]]; then
-      echo ""
-    elif [[ ${git_local} = ${git_base} ]]; then
-      echo " $BLOX_BLOCK__GIT_THEME_UNPULLED"
-    elif [[ ${git_remote} = ${git_base} ]]; then
-      echo " $BLOX_BLOCK__GIT_THEME_UNPUSHED"
-    else
-      echo " $BLOX_BLOCK__GIT_THEME_UNPULLED $BLOX_BLOCK__GIT_THEME_UNPUSHED"
-    fi
+  if [[ "${git_local}" = "${git_remote}" ]]; then
+    echo ""
+  elif [[ "${git_local}" = "${git_base}" ]]; then
+    echo " ${BLOX_BLOCK__GIT_THEME_UNPULLED}"
+  elif [[ "${git_remote}" = "${git_base}" ]]; then
+    echo " ${BLOX_BLOCK__GIT_THEME_UNPUSHED}"
+  else
+    echo " ${BLOX_BLOCK__GIT_THEME_UNPULLED} ${BLOX_BLOCK__GIT_THEME_UNPUSHED}"
   fi
 }
 
 # Checks if the cwd is a git repo
 function blox_block__git_helper__is_git_repo() {
-  return $(git rev-parse --git-dir > /dev/null 2>&1)
+  command git rev-parse --git-dir > /dev/null 2>&1
 }
 
 function blox_block__git_helper__short_status() {
@@ -143,50 +159,74 @@ function blox_block__git_helper__short_status() {
 function _build_block_git {
   blox_block__git_helper__is_git_repo || return 0
 
+  local branch_name branch_remote tag_name commit_hash
+  local stashed_status remote_status short_status
+  local result
+
   branch_name="$(blox_block__git_helper__branch)"
-  branch_remote="$(blox_block__git_helper__remote_branch $branch_name)"
-  tag_name="$(blox_block__git_helper__tag)"
-  stashed_status="$(blox_block__git_helper__stashed_status)"
-  remote_status="$(blox_block__git_helper__remote_status)"
-  short_status="$(blox_block__git_helper__short_status)"
 
-  result=""
-  result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}${branch_name}%f"
-  result+="%F{${BLOX_BLOCK__GIT_BRANCH_REMOTE_COLOR}}[$branch_remote]%f"
+  result="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}${branch_name}%f"
 
-  [[ -n $tag_name ]] && result+="%F{${BLOX_BLOCK__GIT_TAG_COLOR}}${BLOX_CONF__BLOCK_PREFIX}${tag_name}${BLOX_CONF__BLOCK_SUFFIX}%f"
+  # Show remote branch only if enabled
+  if [[ "${BLOX_BLOCK__GIT_SHOW_REMOTE}" != "false" ]]; then
+    branch_remote="$(blox_block__git_helper__remote_branch "$branch_name")"
+    result+="%F{${BLOX_BLOCK__GIT_BRANCH_REMOTE_COLOR}}[${branch_remote}]%f"
+  fi
 
-  [[ $BLOX_BLOCK__GIT_COMMIT_SHOW != false ]] \
-    && commit_hash="$(blox_block__git_helper__commit)" \
-    && result+="%F{${BLOX_BLOCK__GIT_COMMIT_COLOR}}${BLOX_CONF__BLOCK_PREFIX}${commit_hash}${BLOX_CONF__BLOCK_SUFFIX}%f"
+  # Show tag if enabled
+  if [[ "${BLOX_BLOCK__GIT_SHOW_TAGS}" != "false" ]]; then
+    tag_name="$(blox_block__git_helper__tag)"
+    [[ -n "$tag_name" ]] && result+="%F{${BLOX_BLOCK__GIT_TAG_COLOR}}${BLOX_CONF__BLOCK_PREFIX}${tag_name}${BLOX_CONF__BLOCK_SUFFIX}%f"
+  fi
 
-  result+="${stashed_status}"
-  result+="${remote_status}"
-  result+="${short_status}"
+  # Show commit hash if enabled
+  if [[ "${BLOX_BLOCK__GIT_COMMIT_SHOW}" != "false" ]]; then
+    commit_hash="$(blox_block__git_helper__commit)"
+    result+="%F{${BLOX_BLOCK__GIT_COMMIT_COLOR}}${BLOX_CONF__BLOCK_PREFIX}${commit_hash}${BLOX_CONF__BLOCK_SUFFIX}%f"
+  fi
 
-  echo $result
+  # Show stashed status if enabled
+  if [[ "${BLOX_BLOCK__GIT_SHOW_STASHED}" != "false" ]]; then
+    stashed_status="$(blox_block__git_helper__stashed_status)"
+    result+="${stashed_status}"
+  fi
+
+  # Show remote push/pull status if enabled
+  if [[ "${BLOX_BLOCK__GIT_SHOW_REMOTE_STATUS}" != "false" ]]; then
+    remote_status="$(blox_block__git_helper__remote_status)"
+    result+="${remote_status}"
+  fi
+
+  # Show short status if enabled
+  if [[ "${BLOX_BLOCK__GIT_SHOW_SHORT_STATUS}" != "false" ]]; then
+    short_status="$(blox_block__git_helper__short_status)"
+    result+="${short_status}"
+  fi
+
+  echo "${result}"
 }
 
 function _export_block_git {
-  # local current_cmd=$history[$[ HISTCMD -1 ]]
-  local current_cmd_index=$[ HISTCMD -1 ]
+  local current_cmd_index
+  current_cmd_index=$(( HISTCMD - 1 ))
 
   # if no command added to history, return
-  [[ "$current_cmd_index" = "$BLOX_GIT_LAST_CMD_INDEX" ]] && return
+  [[ "${current_cmd_index}" = "${BLOX_GIT_LAST_CMD_INDEX}" ]] && return
 
   export BLOX_BLOCK_GIT=$(_build_block_git)
-  export BLOX_GIT_LAST_CMD_INDEX=$[ HISTCMD -1 ]
+  export BLOX_GIT_LAST_CMD_INDEX=$(( HISTCMD - 1 ))
 }
 
 add-zsh-hook precmd _export_block_git
 
 function blox_block__git() {
-  [[ -n $BLOX_BLOCK_GIT ]] && echo -n $BLOX_BLOCK_GIT
+  [[ -n "${BLOX_BLOCK_GIT}" ]] && echo -n "${BLOX_BLOCK_GIT}"
 }
 
 function blox_block__git_repo_name() {
     blox_block__git_helper__is_git_repo || return 0
-    repo=$(basename $(git config --get remote.origin.url) 2> /dev/null | sed -e 's/\.git$//')
+    local repo
+    repo=$(basename "$(command git config --get remote.origin.url 2> /dev/null)" | sed -e 's/\.git$//')
 
     blox_helper__build_block \
         "${BLOX_BLOCK__GIT_REPO_COLOR}" \

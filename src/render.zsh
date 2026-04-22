@@ -10,7 +10,8 @@ function blox_helper__calculate_spaces() {
   local left=$1
   local right=$2
 
-  # Strip ANSI escape characters
+  # Strip ANSI escape characters (colors, formatting)
+  # Pattern matches CSI sequences (e.g., \e[31m, \033[1m) and other terminal control codes
   local zero='%([BSUbfksu]|([FBK]|){*})'
 
   left=${#${(S%%)left//$~zero/}}
@@ -31,6 +32,20 @@ function blox_helper__calculate_spaces() {
   done
 
   echo $spacing
+}
+
+# ---------------------------------------------
+# Responsive prompt helper
+
+# Check if upper segments would overflow terminal width
+function blox_helper__would_overflow() {
+  local stripped left_len right_len
+  # Strip ANSI escape characters (colors, formatting)
+  # Pattern matches CSI sequences (e.g., \e[31m, \033[1m) and other terminal control codes
+  local zero='%([BSUbfksu]|([FBK]|){*})'
+  left_len=${#${(S%%)1//$~zero/}}
+  right_len=${#${(S%%)2//$~zero/}}
+  [[ $((left_len + right_len)) -gt ${COLUMNS:-9999} ]] && return 0 || return 1
 }
 
 # ---------------------------------------------
@@ -80,6 +95,17 @@ function blox_hook__render() {
       [[ $name = lower_right ]] && lower_right="$segment"
     fi
   done
+
+  # Use responsive upper left if prompt would overflow
+  if blox_helper__would_overflow "$upper_left" "$upper_right"; then
+    results=("${(@f)"$(zargs -P4 -n2 -- upper_left "$BLOX_CONF__RESPONSIVE_UPPER_LEFT" upper_right "$BLOX_SEG__UPPER_RIGHT" -- blox_helper__render_segment)"}")
+    for r in ${results[@]}; do
+      name=$(echo $r | cut -d: -f1)
+      segment=$(echo $r | cut -d: -f2-)
+      [[ $name = upper_left ]] && upper_left="$segment"
+      [[ $name = upper_right ]] && upper_right="$segment"
+    done
+  fi
 
   if [[ $BLOX_CONF__ONELINE == false ]]; then
     spacing="$(blox_helper__calculate_spaces ${upper_left} ${upper_right})"
