@@ -168,15 +168,13 @@ function _build_block_git {
 }
 
 function _export_block_git {
-  cmd=$history[$[ HISTCMD -1 ]]
+  # local current_cmd=$history[$[ HISTCMD -1 ]]
+  local current_cmd_index=$[ HISTCMD -1 ]
 
-  [[ $[ HISTCMD -1 ] == $BLOX_GIT_LAST_CMD_INDEX ]] && return
+  # if no command added to history, return
+  [[ "$current_cmd_index" = "$BLOX_GIT_LAST_CMD_INDEX" ]] && return
 
-  # Rebuild git block if a command has been added to history AND is one of those command
-  if [[ $cmd =~ ^(cd|wd|git|rm|mv|cp|vi|nvim|vim) || -z $BLOX_BLOCK_GIT ]]; then
-    export BLOX_BLOCK_GIT=$(_build_block_git)
-  fi
-
+  export BLOX_BLOCK_GIT=$(_build_block_git)
   export BLOX_GIT_LAST_CMD_INDEX=$[ HISTCMD -1 ]
 }
 
