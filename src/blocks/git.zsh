@@ -157,8 +157,6 @@ function blox_block__git_helper__short_status() {
 # The block itself
 
 function _build_block_git {
-  blox_block__git_helper__is_git_repo || return 0
-
   local branch_name branch_remote tag_name commit_hash
   local stashed_status remote_status short_status
   local result
@@ -207,6 +205,8 @@ function _build_block_git {
 }
 
 function _export_block_git {
+  blox_block__git_helper__is_git_repo || { unset BLOX_BLOCK_GIT && return }
+
   local current_cmd_index
   current_cmd_index=$(( HISTCMD - 1 ))
 
