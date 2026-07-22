@@ -128,11 +128,12 @@ function blox_block__git_helper__is_git_repo() {
 }
 
 function blox_block__git_helper__short_status() {
-    git_status=$(git status --short 2> /dev/null)
+    git_status=$(git status --short --ignored 2> /dev/null)
     if [[ -n $git_status ]]; then
         git_stat=$(git diff --shortstat 2> /dev/null)
 
         git_file_untracked=$(echo $git_status | grep '^??' | wc -l)
+        git_file_ignored=$(echo $git_status | grep '^!!' | wc -l)
         git_file_staged=$(echo $git_status | grep -P '^(A|R|M|D)' | wc -l)
         git_file_changed=$(echo $git_stat | grep -Po '\d+(?= files* changed)')
         git_line_added=$(echo $git_stat | grep -Po '\d+(?= insertion)')
@@ -146,6 +147,7 @@ function blox_block__git_helper__short_status() {
         [[ -n $git_line_added || -n $git_line_deleted ]] && result+=" "
         [[ -n $git_line_added ]] && result+="%F{green}${git_line_added}󰐒%f "
         [[ -n $git_line_deleted ]] && result+="%F{red}${git_line_deleted}󰐐%f "
+        [[ $git_file_ignored > 0 ]] && result+="%F{242}${git_file_ignored}󰘓%f "
         result+=" "
         # result+="%F{${BLOX_BLOCK__GIT_BRANCH_COLOR}}]%f"
 
