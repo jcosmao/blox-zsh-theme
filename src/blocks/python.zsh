@@ -12,8 +12,10 @@ function blox_block__python_version_helper__get_version() {
 }
 
 function blox_python_version__has_python_known_files() {
-  ls -a | grep -Pq '^(.*\.py|pyproject.toml|.*requirements.txt|tox.ini|.python-version)$'
-  return $?
+  # pure zsh glob, no fork (runs on every cd and prompt)
+  local -a found
+  found=(*.py(ND[1]) *requirements.txt(ND[1]) pyproject.toml(N[1]) tox.ini(N[1]) .python-version(N[1]))
+  (( $#found ))
 }
 
 function reset_python_version {
